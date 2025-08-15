@@ -143,7 +143,7 @@ pub unsafe extern "C" fn mmap_close(ptr: *mut c_void, _length: usize) {
 
         cfg_if::cfg_if! {
             if #[cfg(unix)] {
-                munmap(ptr, length);
+                munmap(ptr, _length);
             } else if #[cfg(windows)] {
                 let view_addr = MEMORY_MAPPED_VIEW_ADDRESS { Value: ptr };
                 UnmapViewOfFile(view_addr);
@@ -367,7 +367,7 @@ pub unsafe extern "C" fn mmap_open_write_with_size(
                 return ptr::null_mut();
             }
 
-            let mut cur = lseek(fd, 0, SEEK_END);
+            let cur = lseek(fd, 0, SEEK_END);
             if cur < 0 {
                 close(fd);
                 return ptr::null_mut();
