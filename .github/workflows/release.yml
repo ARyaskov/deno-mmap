@@ -36,6 +36,8 @@ jobs:
           toolchain: 'stable'
 
       - name: Cargo build (release)
+        env:
+          CARGO_TARGET_DIR: target
         run: |
           cargo build --manifest-path ffi/Cargo.toml --release --target ${{ matrix.target }}
 
