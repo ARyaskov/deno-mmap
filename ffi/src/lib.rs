@@ -17,7 +17,7 @@ cfg_if::cfg_if! {
             CreateFileA, GetFileSizeEx, OPEN_EXISTING, FILE_SHARE_READ,
             FILE_ATTRIBUTE_NORMAL, FILE_GENERIC_READ, OPEN_ALWAYS
         };
-        use windows_sys::core::PCSTR;
+        
     }
 }
 
@@ -28,7 +28,7 @@ cfg_if::cfg_if! {
 /// Safety: The returned pointer is valid until `mmap_close` is called.
 /// Do not access it after closing.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mmap_open(path: *const c_char, len_out: *mut usize) -> *mut c_void {
+pub unsafe extern "C" fn mmap_open(path: *const c_char, len_out: *mut usize) -> *mut c_void { unsafe {
     if path.is_null() || len_out.is_null() {
         return ptr::null_mut();
     }
@@ -126,14 +126,14 @@ pub unsafe extern "C" fn mmap_open(path: *const c_char, len_out: *mut usize) -> 
         addr.Value
     }
         }
-}
+}}
 
 /// Unmaps a previously mapped file.
 ///
 /// Safety: `ptr` must be a pointer returned by `mmap_open`
 /// with the same `length` provided by that call.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mmap_close(ptr: *mut c_void, length: usize) {
+pub unsafe extern "C" fn mmap_close(ptr: *mut c_void, length: usize) { unsafe {
     if ptr.is_null() {
         return;
     }
@@ -146,10 +146,10 @@ pub unsafe extern "C" fn mmap_close(ptr: *mut c_void, length: usize) {
             UnmapViewOfFile(view_addr);
         }
     }
-}
+}}
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mmap_open_write(path: *const c_char, len_out: *mut usize) -> *mut c_void {
+pub unsafe extern "C" fn mmap_open_write(path: *const c_char, len_out: *mut usize) -> *mut c_void { unsafe {
     if path.is_null() || len_out.is_null() {
         return ptr::null_mut();
     }
@@ -219,7 +219,7 @@ pub unsafe extern "C" fn mmap_open_write(path: *const c_char, len_out: *mut usiz
             let target_size = if size == 0 { 1024 * 1024 } else { size as usize };
 
             // Expand if needed
-            let mut pos: i64 = target_size as i64;
+            let pos: i64 = target_size as i64;
             if SetFilePointerEx(h_file, pos, ptr::null_mut(), 0) == 0 || SetEndOfFile(h_file) == 0 {
                 CloseHandle(h_file);
                 return ptr::null_mut();
@@ -257,7 +257,7 @@ pub unsafe extern "C" fn mmap_open_write(path: *const c_char, len_out: *mut usiz
             addr.Value
         }
     }
-}
+}}
 
 /// Write `len` bytes from `src_ptr` into (dst_ptr + offset).
 /// Returns number of bytes written, or 0 on invalid args.
@@ -268,14 +268,14 @@ pub unsafe extern "C" fn mmap_write(
     offset: usize,
     src_ptr: *const u8,
     len: usize,
-) -> usize {
+) -> usize { unsafe {
     if dst_ptr.is_null() || src_ptr.is_null() || len == 0 {
         return 0;
     }
     let dst = (dst_ptr as *mut u8).add(offset);
     core::ptr::copy_nonoverlapping(src_ptr, dst, len);
     len
-}
+}}
 
 /// Copies `len` bytes from (src_base + offset) into `dst_ptr`.
 /// Returns number of bytes copied (len) or 0 on invalid args.
@@ -290,21 +290,21 @@ pub unsafe extern "C" fn mmap_read(
     src_base: *const core::ffi::c_void,
     offset: usize,
     len: usize,
-) -> usize {
+) -> usize { unsafe {
     if dst_ptr.is_null() || src_base.is_null() || len == 0 {
         return 0;
     }
     let src = (src_base as *const u8).add(offset);
     core::ptr::copy_nonoverlapping(src, dst_ptr, len);
     len
-}
+}}
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mmap_flush(
     base_ptr: *mut core::ffi::c_void,
     offset: usize,
     len: usize,
-) -> i32 {
+) -> i32 { unsafe {
     if base_ptr.is_null() || len == 0 {
         return -1;
     }
@@ -323,7 +323,7 @@ pub unsafe extern "C" fn mmap_flush(
         let ok = FlushViewOfFile(p, len);
         return if ok != 0 { 0 } else { -1 };
     }
-}
+}}
 
 /// Open (or create) a file and map it read-write, ensuring file size >= `size` if `size > 0`.
 /// Writes the final mapped length to `len_out`. Returns pointer to mapping or null on failure.
@@ -332,11 +332,8 @@ pub unsafe extern "C" fn mmap_open_write_with_size(
     path: *const core::ffi::c_char,
     len_out: *mut usize,
     size: usize,
-) -> *mut core::ffi::c_void {
-    use core::{
-        ffi::{c_char, c_void},
-        ptr,
-    };
+) -> *mut core::ffi::c_void { unsafe {
+    use core::ptr;
     if path.is_null() || len_out.is_null() {
         return ptr::null_mut();
     }
@@ -450,4 +447,4 @@ pub unsafe extern "C" fn mmap_open_write_with_size(
         }
         addr.Value
     }
-}
+}}
