@@ -134,6 +134,9 @@ jobs:
           deno run --allow-read --allow-write --allow-net scripts/gen_checksums_json.ts artifacts checksums.json
           cat checksums.json
 
+      - name: Clean artifacts folder
+        run: rm -rf artifacts
+
       - name: Publish to JSR via OIDC (no token)
         run: |
-          deno publish
+          deno publish --allow-dirty

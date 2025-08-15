@@ -135,7 +135,7 @@ pub unsafe extern "C" fn mmap_open(path: *const c_char, len_out: *mut usize) -> 
 /// Safety: `ptr` must be a pointer returned by `mmap_open`
 /// with the same `length` provided by that call.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mmap_close(ptr: *mut c_void, length: usize) {
+pub unsafe extern "C" fn mmap_close(ptr: *mut c_void, _length: usize) {
     unsafe {
         if ptr.is_null() {
             return;
