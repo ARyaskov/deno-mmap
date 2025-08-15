@@ -15,12 +15,15 @@ jobs:
         include:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
+            crate: deno_mmap_ffi
             out: deno_mmap_ffi-windows-x86_64.dll
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
+            crate: deno_mmap_ffi
             out: deno_mmap_ffi-linux-x86_64.so
-          - os: macos-14   # Apple Silicon runner
+          - os: macos-14
             target: aarch64-apple-darwin
+            crate: deno_mmap_ffi
             out: deno_mmap_ffi-macos-aarch64.dylib
 
     steps:
@@ -39,15 +42,22 @@ jobs:
       - name: Copy artifact to dist/
         shell: bash
         run: |
-          mkdir -p dist
+          set -euxo pipefail
+
+          ls -al "target/${{ matrix.target }}/release" || true
+
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ART="target/${{ matrix.target }}/release/deno_mmap_ffi.dll"
+            SRC="target/${{ matrix.target }}/release/${{ matrix.crate }}.dll"
           elif [[ "${{ runner.os }}" == "Linux" ]]; then
-            ART="target/${{ matrix.target }}/release/deno_mmap_ffi.so"
+            SRC="target/${{ matrix.target }}/release/lib${{ matrix.crate }}.so"
           else
-            ART="target/${{ matrix.target }}/release/deno_mmap_ffi.dylib"
+            SRC="target/${{ matrix.target }}/release/lib${{ matrix.crate }}.dylib"
           fi
-          cp "$ART" "dist/${{ matrix.out }}"
+
+          test -f "$SRC" || { echo "Artifact not found at $SRC"; exit 1; }
+
+          mkdir -p dist
+          cp "$SRC" "dist/${{ matrix.out }}"
 
       - name: Compute SHA256
         shell: bash
