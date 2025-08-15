@@ -1,0 +1,32 @@
+[package]
+name = "deno_mmap_ffi"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Thin ABI mmap/MapViewOfFile wrapper for Deno FFI"
+authors = ["Andrei Riaskov <code@riaskov.com>"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+cfg-if = "1"
+libc = { version = "0.2", optional = true }
+windows-sys = { version = "0.60", features = [
+    "Win32_Foundation",
+    "Win32_System_Memory",
+    "Win32_Security",
+    "Win32_System_SystemInformation",
+    "Win32_Storage_FileSystem"
+], optional = true }
+
+[features]
+default = []
+unix = ["libc"]
+windows = ["windows-sys"]
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+panic = "abort"
+opt-level = "z"

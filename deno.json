@@ -1,0 +1,17 @@
+{
+  "name": "@riaskov/mmap",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "tasks": {
+    "test": "deno test --allow-ffi --unstable-ffi --allow-read --allow-write",
+    "gen:checksums": "deno run --allow-read --allow-write scripts/gen_checksums_json.ts",
+    "publish": "deno publish",
+    "fmt": "deno run -A npm:prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\" \"scripts/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "fmt:check": "deno run -A npm:prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "lint": {
+    "rules": {
+      "exclude": []
+    }
+  }
+}

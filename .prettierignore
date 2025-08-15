@@ -1,0 +1,6 @@
+dist/
+target/
+artifacts/
+*.dll
+*.so
+*.dylib

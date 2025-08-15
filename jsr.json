@@ -1,0 +1,14 @@
+{
+  "name": "@riaskov/mmap",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "publish": {
+    "include": [
+      "mod.ts",
+      "src/**/*.ts",
+      "checksums.json",
+      "README.md",
+      "LICENSE"
+    ]
+  }
+}
