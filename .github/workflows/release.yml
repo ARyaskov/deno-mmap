@@ -117,6 +117,11 @@ jobs:
         with:
           path: artifacts
 
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Verify tag version matches deno.json
         run: |
           TAG="${GITHUB_REF_NAME#v}"
@@ -126,13 +131,8 @@ jobs:
 
       - name: Generate checksums.json from artifacts
         run: |
-          deno run --allow-read --allow-write scripts/gen_checksums_json.ts artifacts checksums.json
+          deno run --allow-read --allow-write --allow-net scripts/gen_checksums_json.ts artifacts checksums.json
           cat checksums.json
-
-      - name: Set up Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
 
       - name: Publish to JSR via OIDC (no token)
         run: |
